@@ -1,5 +1,5 @@
-import os
-import re
+import os,re
+from logging import getLogger
 
 from django.conf import settings
 from django.db import transaction
@@ -14,17 +14,23 @@ from djangopypi.models import Package, Release, Distribution, Classifier
 
 
 
+log = getLogger('djangopypi.views.distutils')
+
 ALREADY_EXISTS_FMT = _(
     "A file named '%s' already exists for %s. Please create a new release.")
 
 def submit_package_or_release(user, post_data, files):
     """Registers/updates a package or release"""
+    log.debug('submit_package_or_release(user=%s)' % (unicode(user),))
     try:
         package = Package.objects.get(name=post_data['name'])
         if user not in package.owners.all():
+            log.error('%s is updating a package they don\'t own: %s' % 
+                      (unicode(user),unicode(package),))
             return HttpResponseForbidden(
                     "That package is owned by someone else!")
     except Package.DoesNotExist:
+        log.info('%s is creating a new package: %s' % (unicode(user), unicode(post_data['name']),))
         package = None
 
     package_form = PackageForm(post_data, instance=package)
