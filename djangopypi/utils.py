@@ -1,5 +1,4 @@
-import sys, traceback
-
+import logging
 
 
 def debug(func):
@@ -8,5 +7,5 @@ def debug(func):
         try:
             return func(*args, **kwargs)
         except:
-            traceback.print_exception(*sys.exc_info())
+            logging.exception("@debug")
     return _wrapped

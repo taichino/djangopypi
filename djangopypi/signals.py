@@ -1,8 +1,11 @@
+import logging
+
 from django.db.models import signals
 from django.utils.hashcompat import md5_constructor
 
 from djangopypi.models import Package, Release, Distribution
 
+log = logging.getLogger('djangopypi.signals')
 
 def autohide_new_release_handler(sender, instance, created, *args, **kwargs):
     """ Autohide other releases on the creation of a new release when the 
@@ -50,8 +53,8 @@ def distribution_hash(sender, instance, *args, **kwargs):
             fh.close()
             instance.md5_digest = digest.hexdigest()
             instance.save()
-        except Exception, e:
-            print str(e)
+        except Exception:
+            log.exception("Error calculating hash")
 
 signals.post_save.connect(autohide_new_release_handler, sender=Release)
 signals.pre_save.connect(autohide_save_release_handler, sender=Release)
