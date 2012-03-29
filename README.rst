@@ -65,7 +65,7 @@ your ``~/.pypirc`` file::
     [local]
     username:user
     password:secret
-    repository:http://localhost:8000/pypi
+    repository:http://localhost:8000/pypi/
 
 Uploading a package: Python >=2.6
 _________________________________
