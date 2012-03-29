@@ -78,11 +78,13 @@ def submit_package_or_release(user, post_data, files):
 @transaction.commit_manually
 def register_or_upload(request):
     if request.method != 'POST':
+        transaction.rollback()
         return HttpResponseBadRequest('Only post requests are supported')
     
     name = request.POST.get('name',None).strip()
     
     if not name:
+        transaction.rollback()
         return HttpResponseBadRequest('No package name specified')
     
     try:
@@ -94,6 +96,7 @@ def register_or_upload(request):
     if (request.user not in package.owners.all() and 
         request.user not in package.maintainers.all()):
         
+        transaction.rollback()
         return HttpResponseForbidden('You are not an owner/maintainer of %s' % (package.name,))
     
     version = request.POST.get('version',None).strip()
