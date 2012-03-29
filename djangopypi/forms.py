@@ -1,3 +1,4 @@
+import logging
 from os.path import basename
 
 from django import forms
@@ -7,6 +8,8 @@ from django.utils.translation import ugettext_lazy as _
 from djangopypi.settings import settings
 from djangopypi.models import Package, Classifier, Release, Distribution
 
+
+log = logging.getLogger('djangopypi.forms')
 
 
 class SimplePackageSearchForm(forms.Form):
@@ -31,7 +34,7 @@ class DistributionUploadForm(forms.ModelForm):
                                        filename=content.name)
         
         if not storage.exists(name):
-            print '%s does not exist' % (name,)
+            log.error('%s does not exist', name)
             return content
         
         if settings.DJANGOPYPI_ALLOW_VERSION_OVERWRITE:

@@ -155,7 +155,7 @@ def register_or_upload(request):
                                                md5_digest=md5_digest)
     except Exception, e:
         transaction.rollback()
-        print str(e)
+        log.exception('Failure when storing upload')
     
     transaction.commit()
     
