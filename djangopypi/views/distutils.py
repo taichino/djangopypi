@@ -156,6 +156,7 @@ def register_or_upload(request):
     except Exception, e:
         transaction.rollback()
         log.exception('Failure when storing upload')
+        return HttpResponseServerError('Failure when storing upload')
     
     transaction.commit()
     
