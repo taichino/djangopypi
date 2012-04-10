@@ -6,6 +6,7 @@
 		<h1>Manage {{ release }}</h1>
 		<ul>
 			<form action="" method="post">
+			{% csrf_token %}
 			{{ form.as_p }}
 			<input type="submit" value="Submit" />
 		</ul>
