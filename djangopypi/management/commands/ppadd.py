@@ -21,9 +21,6 @@ from django.contrib.auth.models import User
 from djangopypi.models import Package, Release, Classifier
 
 
-
-
-
 @contextmanager
 def tempdir():
     """Simple context that provides a temporary directory that is deleted
@@ -126,11 +123,10 @@ added"""
         release = Release()
         release.version = meta.version
         release.package = package
-        filename = os.path.basename(path)
+        release.save()
 
         file = File(open(path, "rb"))
-        release.distribution.save(filename, file)
-        release.save()
+        release.distributions.create(content=file)
         print "%s-%s added" % (meta.name, meta.version)
 
     def _get_meta(self, path):
