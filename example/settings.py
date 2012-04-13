@@ -71,6 +71,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'south',
     'djangopypi',
+    'djangopypi_mirroring',
 )
 
 DJANGOPYPI_MIRRORING = True
@@ -79,16 +80,27 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'stream': 'ext://sys.stdout'
+        },
     },
     'loggers': {
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['console'],
             'level': 'ERROR',
             'propagate': True,
         },
-    }
+        'djangopypi': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+    'root': {
+        'level': 'ERROR',
+        'handlers': ['console'],
+    },
 }
+
