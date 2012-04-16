@@ -18,6 +18,7 @@ from contextlib import contextmanager
 from urlparse import urlsplit
 from setuptools.package_index import PackageIndex
 from django.contrib.auth.models import User
+from django.utils.datastructures import MultiValueDict
 from djangopypi.models import Package, Release, Classifier
 
 
@@ -101,19 +102,7 @@ added"""
             return
 
         # at this point we have metadata and an owner, can safely add it.
-
         package.owner = owner
-        # Some packages don't have proper licence, seems to be a problem
-        # with setup.py upload. Use "UNKNOWN"
-        package.license = meta.license or "Unknown"
-        package.metadata_version = meta.metadata_version
-        package.author = meta.author
-        package.home_page = meta.home_page
-        package.download_url = meta.download_url
-        package.summary = meta.summary
-        package.description = meta.description
-        package.author_email = meta.author_email
-
         package.save()
 
         for classifier in meta.classifiers:
@@ -123,6 +112,9 @@ added"""
         release = Release()
         release.version = meta.version
         release.package = package
+        package_info = MultiValueDict()
+        package_info.update(meta.__dict__)
+        release.package_info = package_info
         release.save()
 
         file = File(open(path, "rb"))
