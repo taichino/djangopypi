@@ -102,8 +102,10 @@ added"""
             return
 
         # at this point we have metadata and an owner, can safely add it.
-        package.owner = owner
         package.save()
+
+        package.owners.add(owner)
+        package.maintainers.add(owner)
 
         for classifier in meta.classifiers:
             package.classifiers.add(
@@ -112,13 +114,26 @@ added"""
         release = Release()
         release.version = meta.version
         release.package = package
+        release.metadata_version = meta.metadata_version
         package_info = MultiValueDict()
         package_info.update(meta.__dict__)
         release.package_info = package_info
         release.save()
 
         file = File(open(path, "rb"))
-        release.distributions.create(content=file)
+        if isinstance(meta, pkginfo.SDist):
+            dist = 'sdist'
+        elif meta.filename.endswith('.rmp') or meta.filename.endswith('.srmp'):
+            dist = 'bdist_rpm'
+        elif meta.filename.endswith('.exe'):
+            dist = 'bdist_wininst'
+        elif meta.filename.endswith('.egg'):
+            dist = 'bdist_egg'
+        elif meta.filename.endswith('.dmg'):
+            dist = 'bdist_dmg'
+        else:
+            dist = 'bdist_dumb'
+        release.distributions.create(content=file, uploader=owner, filetype=dist)
         print "%s-%s added" % (meta.name, meta.version)
 
     def _get_meta(self, path):
