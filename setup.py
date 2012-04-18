@@ -37,6 +37,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'setuptools',
+        'pkginfo',
         'docutils',
     ],
 )
