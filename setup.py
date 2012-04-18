@@ -1,6 +1,8 @@
 import os
 from setuptools import setup, find_packages
 
+
+
 def fread(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
@@ -39,5 +41,9 @@ setup(
         'setuptools',
         'pkginfo',
         'docutils',
+    ],
+    setup_requires=[
+        'setuptools',
+        'setuptools-git',
     ],
 )
