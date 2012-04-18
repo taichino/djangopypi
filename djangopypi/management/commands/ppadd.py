@@ -18,10 +18,8 @@ from contextlib import contextmanager
 from urlparse import urlsplit
 from setuptools.package_index import PackageIndex
 from django.contrib.auth.models import User
+from django.utils.datastructures import MultiValueDict
 from djangopypi.models import Package, Release, Classifier
-
-
-
 
 
 @contextmanager
@@ -104,20 +102,10 @@ added"""
             return
 
         # at this point we have metadata and an owner, can safely add it.
-
-        package.owner = owner
-        # Some packages don't have proper licence, seems to be a problem
-        # with setup.py upload. Use "UNKNOWN"
-        package.license = meta.license or "Unknown"
-        package.metadata_version = meta.metadata_version
-        package.author = meta.author
-        package.home_page = meta.home_page
-        package.download_url = meta.download_url
-        package.summary = meta.summary
-        package.description = meta.description
-        package.author_email = meta.author_email
-
         package.save()
+
+        package.owners.add(owner)
+        package.maintainers.add(owner)
 
         for classifier in meta.classifiers:
             package.classifiers.add(
@@ -126,11 +114,26 @@ added"""
         release = Release()
         release.version = meta.version
         release.package = package
-        filename = os.path.basename(path)
+        release.metadata_version = meta.metadata_version
+        package_info = MultiValueDict()
+        package_info.update(meta.__dict__)
+        release.package_info = package_info
+        release.save()
 
         file = File(open(path, "rb"))
-        release.distribution.save(filename, file)
-        release.save()
+        if isinstance(meta, pkginfo.SDist):
+            dist = 'sdist'
+        elif meta.filename.endswith('.rmp') or meta.filename.endswith('.srmp'):
+            dist = 'bdist_rpm'
+        elif meta.filename.endswith('.exe'):
+            dist = 'bdist_wininst'
+        elif meta.filename.endswith('.egg'):
+            dist = 'bdist_egg'
+        elif meta.filename.endswith('.dmg'):
+            dist = 'bdist_dmg'
+        else:
+            dist = 'bdist_dumb'
+        release.distributions.create(content=file, uploader=owner, filetype=dist)
         print "%s-%s added" % (meta.name, meta.version)
 
     def _get_meta(self, path):
