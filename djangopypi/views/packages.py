@@ -24,18 +24,19 @@ def simple_index(request, **kwargs):
 def details(request, package, **kwargs):
     kwargs.setdefault('template_object_name', 'package')
     kwargs.setdefault('queryset', Package.objects.all())
-    return list_detail.object_detail(request, object_id=package, **kwargs)
-
-def simple_details(request, package, **kwargs):
-    kwargs.setdefault('template_name', 'djangopypi/package_detail_simple.html')
     try:
-        return details(request, package, **kwargs)
+        return list_detail.object_detail(request, object_id=package, **kwargs)
     except Http404, e:
         if settings.DJANGOPYPI_PROXY_MISSING:
             return HttpResponseRedirect('%s/%s/' % 
                                         (settings.DJANGOPYPI_PROXY_BASE_URL.rstrip('/'),
                                          package))
         raise e
+
+
+def simple_details(request, package, **kwargs):
+    kwargs.setdefault('template_name', 'djangopypi/package_detail_simple.html')
+    return details(request, package, **kwargs)
 
 def doap(request, package, **kwargs):
     kwargs.setdefault('template_name', 'djangopypi/package_doap.xml')
