@@ -30,7 +30,7 @@ setup(
     author_email='askh@opera.com',
     maintainer='Benjamin Liles',
     maintainer_email='benliles@gmail.com',
-    url='http://github.com/benliles/chishop',
+    url='http://github.com/benliles/djangopypi',
     license='BSD',
     packages=find_packages(),
     include_package_data=True,
