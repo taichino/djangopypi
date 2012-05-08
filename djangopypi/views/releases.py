@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.forms.models import inlineformset_factory
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse
 from django.views.generic import list_detail, create_update
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
@@ -184,3 +184,13 @@ def upload_file(request, package, version, **kwargs):
     return render_to_response(kwargs['template_name'], kwargs['extra_context'],
                               context_instance=RequestContext(request),
                               mimetype=kwargs['mimetype'])
+
+def download_file(request, package, filename, version=None):
+    import os
+    filepath = os.path.join(settings.MEDIA_ROOT, settings.DJANGOPYPI_RELEASE_UPLOAD_TO, filename)
+    if not os.path.exists(filepath):
+        raise Http404('%s does not exist' % (filepath,))
+    
+    response = HttpResponse(content=open(filepath).read(), content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename=%s' % (filename,)
+    return response
